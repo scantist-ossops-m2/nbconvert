@@ -7,6 +7,8 @@ that uses Jinja2 to export notebook files into different formats.
 
 
 import json
+import html
+from lxml.html.clean import clean_html
 import os
 import uuid
 import warnings
@@ -68,9 +70,11 @@ default_filters = {
     "get_metadata": filters.get_metadata,
     "convert_pandoc": filters.convert_pandoc,
     "json_dumps": json.dumps,
-    # browsers will parse </script>, closing a script tag early
-    # Since JSON allows escaping forward slash, this will still be parsed by JSON
-    "escape_html_script": lambda x: x.replace("</script>", "<\\/script>"),
+    # For removing any HTML
+    "escape_html": lambda s: html.escape(str(s)),
+    "escape_html_keep_quotes": lambda s: html.escape(str(s), quote=False),
+    # For sanitizing HTML for any XSS
+    "clean_html": clean_html,
     "strip_trailing_newline": filters.strip_trailing_newline,
     "text_base64": filters.text_base64,
 }
